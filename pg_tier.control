@@ -1,0 +1,7 @@
+comment = 'pg_tier: tiered storage developed by tembo.io'
+default_version = '@CARGO_VERSION@'
+module_pathname = '$libdir/pg_tier'
+relocatable = false
+superuser = true
+schema = tier
+requires = 'parquet_s3_fdw'

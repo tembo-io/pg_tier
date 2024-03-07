@@ -1,0 +1,13 @@
+[extension]
+name = "pg_tier"
+repository = "https://github.com/tembo-io/pg_tier"
+license = "PostgreSQL"
+description = "Open source s3 tiering extension for Postgres."
+homepage = "https://github.com/tembo-io/pg_tier"
+documentation = "https://github.com/tembo-io/pg_tier"
+categories = ["analytics", "connectors"]
+version = "0.0.1"
+
+[build]
+postgres_version = "15"
+platform = "linux/amd64"
