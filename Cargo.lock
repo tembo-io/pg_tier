@@ -1580,7 +1580,7 @@ dependencies = [
 
 [[package]]
 name = "pg_tier"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "aws-config",
  "aws-sdk-s3",
