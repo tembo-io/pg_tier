@@ -6,7 +6,7 @@ description = "Open source s3 tiering extension for Postgres."
 homepage = "https://github.com/tembo-io/pg_tier"
 documentation = "https://github.com/tembo-io/pg_tier"
 categories = ["analytics", "connectors"]
-version = "0.0.1"
+version = "0.0.2"
 
 [build]
 postgres_version = "15"
