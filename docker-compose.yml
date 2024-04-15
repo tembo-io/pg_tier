@@ -1,0 +1,10 @@
+version: '3.2'
+
+services:
+  postgres:
+    restart: always
+    image: quay.io/tembo/tier-pg:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres
