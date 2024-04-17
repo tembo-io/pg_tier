@@ -1,6 +1,6 @@
 # pg_tier
 
-**A Postgres extension for enabling data tiering to external storage**
+**A Postgres extension to tier data to external storage**
 
 ## Overview
 
