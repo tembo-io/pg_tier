@@ -31,7 +31,7 @@ CREATE EXTENSION pg_tier CASCADE
 ### Setup Credential
 
 ```sql
-select tier.set_tier_credentials('S3_BUCKET_NAME','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
+select tier.set_tier_credentials('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
 ```
 
 ### Create a table
@@ -69,4 +69,37 @@ select tier.execute_tiering('people');
 
 ```sql
 select * from people;
+```
+
+```text
+  name   | age 
+---------+-----
+ Alice   |  34
+ Bob     |  45
+ Charlie |  56
+```
+
+### Table becomes foreign table with remote storage
+
+```text
+postgres=# \d people
+                  Foreign table "public.people"
+ Column |  Type   | Collation | Nullable | Default | FDW options  
+--------+---------+-----------+----------+---------+--------------
+ name   | text    |           | not null |         | (key 'true')
+ age    | numeric |           | not null |         | (key 'true')
+Server: pg_tier_s3_srv
+FDW options: (dirname 's3://my-storage-bucket/public_people/')
+```
+
+```text
+postgres=# explain analyze select * from people;
+                                               QUERY PLAN                                                
+---------------------------------------------------------------------------------------------------------
+ Foreign Scan on people  (cost=0.00..0.09 rows=9 width=64) (actual time=126.438..126.444 rows=9 loops=1)
+   Reader: Single File
+   Row groups: 1
+ Planning Time: 440.560 ms
+ Execution Time: 172.527 ms
+(5 rows)
 ```
