@@ -1,7 +1,3 @@
-ARG PGTIER_VER=0.0.3
-ARG PGRX_VER=0.11.3
-ARG PG_VERSION=15
-
 FROM quay.io/tembo/tembo-local:latest
 USER root
 
@@ -52,6 +48,14 @@ RUN git clone https://github.com/apache/arrow.git && \
 
 WORKDIR /
 
+# install rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN $HOME/.cargo/bin/rustup default stable
+
+# install pgrx
+ARG PGRX_VER=0.11.3
+RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=$PGRX_VER --locked
+
 # init pgrx with postgres
 RUN $HOME/.cargo/bin/cargo pgrx init --pg15 $(which pg_config)
 
@@ -63,11 +67,8 @@ RUN git clone https://github.com/pgspider/parquet_s3_fdw.git && \
     cd .. && rm -rf parquet_s3_fdw
 
 # install pg_tier
-RUN git clone https://github.com/tembo-io/pg_tier.git && \
-    cd pg_tier && git fetch origin v$PGTIER_VER && \
-    git checkout v$PGTIER_VER && \
-    $HOME/.cargo/bin/cargo pgrx install --pg-config=$(which pg_config) && \
-    cd .. && rm -rf pg_tier
+COPY . .
+RUN $HOME/.cargo/bin/cargo pgrx install --pg-config=$(which pg_config)
 
 # cache all extensions
 RUN set -eux; \
