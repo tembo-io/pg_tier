@@ -130,11 +130,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Install stoml
         shell: bash
         run: |
@@ -166,7 +161,7 @@ jobs:
         with:
           file: ./images/tier-pg/Dockerfile
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             quay.io/tembo/tier-pg:v${{ steps.versions.outputs.SHORT_SHA }}
@@ -177,7 +172,7 @@ jobs:
         with:
           file: ./images/tier-pg/Dockerfile
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             quay.io/tembo/tier-pg:v${{ steps.versions.outputs.TAG_VER }}
