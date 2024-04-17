@@ -91,3 +91,15 @@ postgres=# \d people
 Server: pg_tier_s3_srv
 FDW options: (dirname 's3://my-storage-bucket/public_people/')
 ```
+
+```text
+postgres=# explain analyze select * from people;
+                                               QUERY PLAN                                                
+---------------------------------------------------------------------------------------------------------
+ Foreign Scan on people  (cost=0.00..0.09 rows=9 width=64) (actual time=126.438..126.444 rows=9 loops=1)
+   Reader: Single File
+   Row groups: 1
+ Planning Time: 440.560 ms
+ Execution Time: 172.527 ms
+(5 rows)
+```
