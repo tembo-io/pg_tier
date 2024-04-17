@@ -5,16 +5,28 @@ This extension provides strategic solution to manage data that has lower access 
 
 # Installation
 
-### Install dependency
-Install extension `parquet_s3_fdw`. For details visit https://github.com/pgspider/parquet_s3_fdw
+## Run with docker
 
-# Usage
+Start the container
 
-### Load Extension
+```bash
+docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 --name pg-tier quay.io/tembo/tier-pg:latest
+```
+
+Then connect with `psql`
+
+```bash
+psql postgres://postgres:postgres@localhost:5432/postgres
+```
+
+## Load the extension
 
 ```sql
-CREATE EXTENSION pg_tier;
+CREATE EXTENSION pg_tier CASCADE
 ```
+
+
+# Usage
 
 ### Setup Credential
 
@@ -22,15 +34,39 @@ CREATE EXTENSION pg_tier;
 select tier.set_tier_credentials('S3_BUCKET_NAME','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
 ```
 
-### Enable tiered storage on a table
+### Create a table
 
 ```sql
-select tier.create_tier_table('TABLE_NAME');
+create table people (
+    name text not null,
+    age numeric not null
+);
+```
+
+### Insert some data
+
+```sql
+insert into people values ('Alice', 34), ('Bob', 45), ('Charlie', 56);
+```
+
+### Enable tiered storage on the table
+
+Initializes remote storage (S3) for the table.
+
+```sql
+select tier.create_tier_table('people');
 ```
 
 ### Tiering Data
 
+Moves the local table into remote storage (S3).
+
 ```sql
-select tier.execute_tiering('TABLE_NAME');
+select tier.execute_tiering('people');
 ```
 
+### Query the remote table
+
+```sql
+select * from people;
+```
