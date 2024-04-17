@@ -164,7 +164,7 @@ jobs:
         with:
           file: ./images/tier-pg/Dockerfile
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             quay.io/tembo/tier-pg:v${{ steps.versions.outputs.SHORT_SHA }}
@@ -175,7 +175,7 @@ jobs:
         with:
           file: ./images/tier-pg/Dockerfile
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             quay.io/tembo/tier-pg:v${{ steps.versions.outputs.TAG_VER }}
