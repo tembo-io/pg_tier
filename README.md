@@ -70,3 +70,11 @@ select tier.execute_tiering('people');
 ```sql
 select * from people;
 ```
+
+```text
+  name   | age 
+---------+-----
+ Alice   |  34
+ Bob     |  45
+ Charlie |  56
+```
