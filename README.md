@@ -31,7 +31,7 @@ CREATE EXTENSION pg_tier CASCADE
 ### Setup Credential
 
 ```sql
-select tier.set_tier_credentials('S3_BUCKET_NAME','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
+select tier.set_tier_credentials('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
 ```
 
 ### Create a table
@@ -77,4 +77,17 @@ select * from people;
  Alice   |  34
  Bob     |  45
  Charlie |  56
+```
+
+### Table becomes foreign table with remote storage
+
+```text
+postgres=# \d people
+                  Foreign table "public.people"
+ Column |  Type   | Collation | Nullable | Default | FDW options  
+--------+---------+-----------+----------+---------+--------------
+ name   | text    |           | not null |         | (key 'true')
+ age    | numeric |           | not null |         | (key 'true')
+Server: pg_tier_s3_srv
+FDW options: (dirname 's3://my-storage-bucket/public_people/')
 ```
