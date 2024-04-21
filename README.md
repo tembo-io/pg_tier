@@ -1,6 +1,20 @@
+
 # pg_tier
 
 **A Postgres extension to tier data to external storage**
+
+## Disclaimer
+
+Dear Users,
+
+Please read this disclaimer carefully before proceeding.
+
+This version is a beta release of pg_tier. It is not yet finalized and may contain bugs, errors or other concurrency releated issues. Not advisable to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues while using this beta release, please report them by creating an issue as bug. Your reports will help us improve the extension for the final release.
+
+The features, functionality, and behavior of this beta release are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
+
+By proceeding with the installation and use of this beta release, you acknowledge that you have read, understood, and agree to the terms of this disclaimer.
+
 
 ## Overview
 
@@ -76,7 +90,7 @@ select * from people;
 ```
 
 ```text
-  name   | age 
+  name   | age
 ---------+-----
  Alice   |  34
  Bob     |  45
@@ -88,7 +102,7 @@ select * from people;
 ```text
 postgres=# \d people
                   Foreign table "public.people"
- Column |  Type   | Collation | Nullable | Default | FDW options  
+ Column |  Type   | Collation | Nullable | Default | FDW options
 --------+---------+-----------+----------+---------+--------------
  name   | text    |           | not null |         | (key 'true')
  age    | numeric |           | not null |         | (key 'true')
@@ -98,7 +112,7 @@ FDW options: (dirname 's3://my-storage-bucket/public_people/')
 
 ```text
 postgres=# explain analyze select * from people;
-                                               QUERY PLAN                                                
+                                               QUERY PLAN
 ---------------------------------------------------------------------------------------------------------
  Foreign Scan on people  (cost=0.00..0.09 rows=9 width=64) (actual time=126.438..126.444 rows=9 loops=1)
    Reader: Single File
