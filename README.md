@@ -3,18 +3,15 @@
 
 **A Postgres extension to tier data to external storage**
 
-## Disclaimer
+## Beta Disclaimer
 
-Dear Users,
+The features, functionality, and behavior of `pg_tier` are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
 
-Please read this disclaimer carefully before proceeding.
+`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them. 
 
-This version is a beta release of pg_tier. It is not yet finalized and may contain bugs, errors or other concurrency releated issues. Not advisable to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues while using this beta release, please report them by creating an issue as bug. Your reports will help us improve the extension for the final release.
+Your reports will help us improve the extension for the final release.
 
-The features, functionality, and behavior of this beta release are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
-
-By proceeding with the installation and use of this beta release, you acknowledge that you have read, understood, and agree to the terms of this disclaimer.
-
+By proceeding with installation and use, you acknowledge that you have read, understood, and agree to the terms of this disclaimer.
 
 ## Overview
 
