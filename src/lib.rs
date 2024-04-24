@@ -73,7 +73,7 @@ async fn create_top_level_bucket(
     access_key: String,
     secret_key: String,
     region: String,
-) -> Result<String, aws_sdk_s3::Error> {
+) -> Result<bool, aws_sdk_s3::Error> {
     let provider_name = "tembo";
     let reg_clone = region.clone();
     let creds = Credentials::new(access_key, secret_key, None, None, provider_name);
@@ -103,9 +103,9 @@ async fn create_top_level_bucket(
         //println!("Calling Make Bucket");
         let resp = make_bucket(&client, bn, reg_clone.as_str()).await?;
         println!("Make Bucket Response {:?}", resp);
-        Ok(buckets.len().to_string())
+        Ok(true)
     } else {
-        Ok(buckets.len().to_string())
+        Ok(true)
     }
 }
 
