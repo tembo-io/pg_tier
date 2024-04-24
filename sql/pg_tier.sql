@@ -157,7 +157,7 @@ BEGIN
     CONCAT(tab_name, '_old') INTO tab_new_name;
 
 -- Debug notice
-  --RAISE NOTICE 'table rename = %', tab_new_name;
+  RAISE NOTICE 'Original Table = % Renamed to = %', qualified_tab_name, tab_new_name;
 
   SELECT
     @extschema@.gen_foreign_table_ddl(tab_spacename, tab_name, tab_name, aws_bucket_name, server_name)
@@ -166,7 +166,7 @@ BEGIN
 -- Debug notice
  -- RAISE NOTICE 'NEW FOREIGN TABLE DDL = %', tier_tab_ddl;
 
-  EXECUTE 'ALTER TABLE ' || tab_name || ' RENAME TO ' || tab_new_name;
+  EXECUTE 'ALTER TABLE ' || qualified_tab_name || ' RENAME TO ' || tab_new_name;
 
   EXECUTE tier_tab_ddl;
 
