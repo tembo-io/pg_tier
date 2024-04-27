@@ -38,7 +38,7 @@ psql postgres://postgres:postgres@localhost:5432/postgres
 ### Load the extension
 
 ```sql
-CREATE EXTENSION pg_tier CASCADE
+CREATE EXTENSION pg_tier CASCADE;
 ```
 
 ## Usage
