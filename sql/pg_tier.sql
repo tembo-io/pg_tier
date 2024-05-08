@@ -1,15 +1,15 @@
 -- This function must be the first call right after the CREATE EXTENSION.
 
 CREATE OR REPLACE
-FUNCTION @extschema@.set_tier_credentials(bucket_name TEXT, access_key TEXT, secret_key TEXT, region TEXT)
-  RETURNS TEXT
+FUNCTION @extschema@.set_tier_config(bucket_name TEXT, access_key TEXT, secret_key TEXT, region TEXT)
+  RETURNS boolean
   LANGUAGE plpgsql
 AS $function$
 DECLARE
   current_user text;
   server_name text := 'pg_tier_s3_srv';
   server_user text := 'mapping';
-  ret text;
+  ret boolean;
 BEGIN
 -- Fetch current user
   SELECT
@@ -58,8 +58,8 @@ $function$;
 -- User interface function to convert a regular or partition table
 -- into foreign table
 CREATE OR REPLACE
-FUNCTION @extschema@.create_tier_table(relation regclass)
-  RETURNS bool
+FUNCTION @extschema@.enable(relation regclass)
+  RETURNS boolean
   LANGUAGE plpgsql
 AS $function$
 DECLARE
@@ -68,7 +68,7 @@ DECLARE
   tab_spacename text;
   tab_spacename_oid oid;
   tab_relkind char;
-  tab_relispartition bool;
+  tab_relispartition boolean;
   tab_inhparent_oid oid := NULL;
   tab_new_name text;
   tier_tab_ddl text;
@@ -76,7 +76,7 @@ DECLARE
   tier_tab_spacename text;
   tier_tab_spacename_oid oid;
   tier_tab_relkind char;
-  tier_tab_relispartition bool;
+  tier_tab_relispartition boolean;
   tier_tab_partitionbound text;
   aws_access_key text;
   aws_secret_key text;
@@ -93,7 +93,10 @@ BEGIN
     RETURN FALSE;
   END IF;
 
--- Fetch source table catalog info
+-- Fetch source table catalog info.
+-- What are we trying to figure out?
+-- > qualified name
+-- > table kind regular or partition
   SELECT
     format('%s.%s', n.nspname, c.relname),
     n.nspname,
@@ -111,11 +114,12 @@ BEGIN
     tier_tab_partitionbound
     FROM pg_class c
     LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
-    WHERE c.oid = relation;
+    WHERE c.oid = relation
+    AND c.relkind IN ('r', 'p');
 
 -- RAISE NOTICE 'tab_name: %, tab_spacename = %', tab_name, tab_spacename;
   IF NOT FOUND THEN
-    RAISE no_data_found USING MESSAGE = 'Table doesnot exists';
+    RAISE no_data_found USING MESSAGE = 'Table doesnot exists or not a regular or partition table';
     RETURN FALSE;
   END IF;
 
@@ -148,7 +152,9 @@ BEGIN
   WHERE cred_id = 1;
 
   IF NOT FOUND THEN
-    RAISE object_not_in_prerequisite_state USING MESSAGE = 'Tier Credentials Not Found';
+    RAISE object_not_in_prerequisite_state
+     USING MESSAGE = 'No Object Store Credentials Found',
+     HINT = 'To set credentials call set_tier_config() function';
     RETURN FALSE;
   END IF;
 
@@ -156,15 +162,12 @@ BEGIN
   SELECT
     CONCAT(tab_name, '_old') INTO tab_new_name;
 
--- Debug notice
-  RAISE NOTICE 'Original Table = % Renamed to = %', qualified_tab_name, tab_new_name;
-
   SELECT
     @extschema@.gen_foreign_table_ddl(tab_spacename, tab_name, tab_name, aws_bucket_name, server_name)
     INTO tier_tab_ddl;
 
 -- Debug notice
- -- RAISE NOTICE 'NEW FOREIGN TABLE DDL = %', tier_tab_ddl;
+ --RAISE NOTICE 'NEW FOREIGN TABLE DDL = %', tier_tab_ddl;
 
   EXECUTE 'ALTER TABLE ' || qualified_tab_name || ' RENAME TO ' || tab_new_name;
 
@@ -232,10 +235,13 @@ BEGIN
       relation,
       'FDW_TABLE_CREATED',
       tier_tab_ddl,
-      'S3 DIR',
+      aws_bucket_name || '/' || tab_spacename || '_' || tab_name,
       tier_tab_partitionbound,
       now()
     );
+
+-- Debug notice
+  RAISE NOTICE 'Original Table = % Renamed to = %', qualified_tab_name, tab_new_name;
 
   RETURN TRUE;
 END;
@@ -372,12 +378,13 @@ END;
 $function$ LANGUAGE plpgsql VOLATILE COST 100;
 
 -- This function will copy data from old regular/partition table to
--- new foreign table. Detach and Attach will be automatic if master
+-- new foreign table. Truncate old regular/partition table.
+-- Detach and Attach will be automatic if master
 -- doesn't have any pk, fk, uniq constraints defined.
 -- Alternative case, it will only detach the existing partition.
 CREATE OR REPLACE
-  FUNCTION @extschema@.execute_tiering(ptgt_table_oid regclass, with_force bool DEFAULT FALSE)
-  RETURNS bool
+  FUNCTION @extschema@.execute(ptgt_table_oid regclass, trunc_old_tbl boolean DEFAULT TRUE, with_force boolean DEFAULT FALSE)
+  RETURNS boolean
   LANGUAGE plpgsql
 AS $BODY$
 DECLARE
@@ -386,7 +393,7 @@ DECLARE
   qualified_inhparent_tab_name text;
   source_table_oid oid;
   inhparent oid;
-  tab_relispartition bool;
+  tab_relispartition boolean;
   tab_partitionbound text;
   tab_pfu_count int := 0;
 BEGIN
@@ -421,8 +428,19 @@ BEGIN
     LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE c.oid = ptgt_table_oid;
 
+-- Update State in the target catalog
+  UPDATE  @extschema@.target
+    SET tgt_tier_state = 'FDW_COPY_BEGIN'
+    WHERE tgt_oid = ptgt_table_oid;
+
 -- Initiate Insert Select
-  EXECUTE 'INSERT INTO ' || qualified_tgt_tab_name || ' (SELECT * FROM ' || qualified_src_tab_name || ' )';
+  EXECUTE 'INSERT INTO ' || qualified_tgt_tab_name || ' (SELECT * FROM ' || qualified_src_tab_name  || ' )';
+
+-- Update State in the target catalog
+  UPDATE  @extschema@.target
+    SET tgt_tier_state = 'FDW_COPY_DONE'
+    WHERE tgt_oid = ptgt_table_oid;
+
 
   IF tab_relispartition IS TRUE AND
     tab_partitionbound IS NOT NULL
@@ -442,11 +460,39 @@ BEGIN
     END IF;
   END IF;
 
+  IF trunc_old_tbl IS TRUE THEN
+    EXECUTE 'TRUNCATE TABLE ' || qualified_src_tab_name ;
+  END IF;
+
 -- Update State in the target catalog
   UPDATE  @extschema@.target
     SET tgt_tier_state = 'FDW_TABLE_COPIED'
     WHERE tgt_oid = ptgt_table_oid;
 
 RETURN TRUE;
+END;
+$BODY$;
+
+-- This is a SingleShot function.
+-- It enables tiering on the given table,
+-- and also execute the data movement to object store.
+CREATE OR REPLACE
+FUNCTION @extschema@.table(relation regclass)
+  RETURNS boolean
+  LANGUAGE plpgsql
+AS $BODY$
+DECLARE
+  tgt_tab_oid oid;
+  ret boolean;
+BEGIN
+  SELECT @extschema@.enable(relation) INTO ret;
+  IF ret = TRUE THEN
+    SELECT tgt_oid INTO tgt_tab_oid from @extschema@.target WHERE tgt_src_oid = relation;
+    SELECT @extschema@.execute(tgt_tab_oid) INTO ret;
+  ELSE
+    ROLLBACK;
+    RETURN FALSE;
+  END IF;
+RETURN ret;
 END;
 $BODY$;

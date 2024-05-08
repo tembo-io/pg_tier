@@ -7,7 +7,7 @@
 
 The features, functionality, and behavior of `pg_tier` are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
 
-`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them. 
+`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them.
 
 Your reports will help us improve the extension for the final release.
 
@@ -38,7 +38,7 @@ psql postgres://postgres:postgres@localhost:5432/postgres
 ### Load the extension
 
 ```sql
-CREATE EXTENSION pg_tier CASCADE
+CREATE EXTENSION pg_tier CASCADE;
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ CREATE EXTENSION pg_tier CASCADE
 ### Setup Credential
 
 ```sql
-select tier.set_tier_credentials('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
+select tier.set_tier_config('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
 ```
 
 ### Create a table
@@ -69,7 +69,7 @@ insert into people values ('Alice', 34), ('Bob', 45), ('Charlie', 56);
 Initializes remote storage (S3) for the table.
 
 ```sql
-select tier.create_tier_table('people');
+select tier.enable('people');
 ```
 
 ### Tiering Data
@@ -77,7 +77,7 @@ select tier.create_tier_table('people');
 Moves the local table into remote storage (S3).
 
 ```sql
-select tier.execute_tiering('people');
+select tier.execute('people');
 ```
 
 ### Query the remote table
