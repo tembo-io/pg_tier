@@ -12,7 +12,7 @@
 
 The features, functionality, and behavior of `pg_tier` are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
 
-`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them. 
+`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them.
 
 Your reports will help us improve the extension for the final release.
 
@@ -51,7 +51,7 @@ CREATE EXTENSION pg_tier CASCADE;
 ### Setup Credential
 
 ```sql
-select tier.set_tier_credentials('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
+select tier.set_tier_config('my-storage-bucket','AWS_ACCESS_KEY', 'AWS_SECRET_KEY','AWS_REGION');
 ```
 
 ### Create a table
@@ -69,20 +69,34 @@ create table people (
 insert into people values ('Alice', 34), ('Bob', 45), ('Charlie', 56);
 ```
 
-### Enable tiered storage on the table
+## Tiering Data
 
-Initializes remote storage (S3) for the table.
+There are two ways to tier an existing table in pg_tier.
+
+### 1. By calling enable then execute
+
+### Enable call
+
+Initializes remote storage (S3) for the table. Sets the stage ready for data movement.
 
 ```sql
-select tier.create_tier_table('people');
+select tier.enable_tiering('people');
 ```
 
-### Tiering Data
+### Execute call
 
 Moves the local table into remote storage (S3).
 
 ```sql
-select tier.execute_tiering('people');
+select tier.execute_s3_tiering('people');
+```
+
+### 2. By calling single-shot function
+
+This method calls enable and execute in sequence.
+
+```sql
+select tier.table('people');
 ```
 
 ### Query the remote table
