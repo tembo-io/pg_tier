@@ -3,6 +3,8 @@
 
 **A Postgres extension to tier data to external storage**
 
+[![Tembo Cloud Try Free](https://tembo.io/tryFreeButton.svg)](https://cloud.tembo.io/sign-up)
+
 [![Static Badge](https://img.shields.io/badge/%40tembo-community?logo=slack&label=slack)](https://join.slack.com/t/tembocommunity/shared_invite/zt-277pu7chi-NHtvHWvLhHwyK0Y5Y6vTPw)
 [![OSSRank](https://shields.io/endpoint?url=https://ossrank.com/shield/4021)](https://ossrank.com/p/4021)
 
