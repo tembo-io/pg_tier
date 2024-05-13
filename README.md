@@ -64,20 +64,34 @@ create table people (
 insert into people values ('Alice', 34), ('Bob', 45), ('Charlie', 56);
 ```
 
-### Enable tiered storage on the table
+## Tiering Data
 
-Initializes remote storage (S3) for the table.
+There are two ways to tier an existing table in pg_tier.
+
+### 1. By calling enable then execute
+
+### Enable call
+
+Initializes remote storage (S3) for the table. Sets the stage ready for data movement.
 
 ```sql
-select tier.enable('people');
+select tier.enable_tiering('people');
 ```
 
-### Tiering Data
+### Execute call
 
 Moves the local table into remote storage (S3).
 
 ```sql
-select tier.execute('people');
+select tier.execute_s3_tiering('people');
+```
+
+### 2. By calling single-shot function
+
+This method calls enable and execute in sequence.
+
+```sql
+select tier.table('people');
 ```
 
 ### Query the remote table

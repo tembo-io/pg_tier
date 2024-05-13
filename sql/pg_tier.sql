@@ -58,7 +58,7 @@ $function$;
 -- User interface function to convert a regular or partition table
 -- into foreign table
 CREATE OR REPLACE
-FUNCTION @extschema@.enable(relation regclass)
+FUNCTION @extschema@.enable_tiering(relation regclass)
   RETURNS boolean
   LANGUAGE plpgsql
 AS $function$
@@ -94,9 +94,7 @@ BEGIN
   END IF;
 
 -- Fetch source table catalog info.
--- What are we trying to figure out?
--- > qualified name
--- > table kind regular or partition
+-- qualified name, table kind regular or partition
   SELECT
     format('%s.%s', n.nspname, c.relname),
     n.nspname,
@@ -154,7 +152,7 @@ BEGIN
   IF NOT FOUND THEN
     RAISE object_not_in_prerequisite_state
      USING MESSAGE = 'No Object Store Credentials Found',
-     HINT = 'To set credentials call set_tier_config() function';
+     HINT = 'To set credentials call tier.set_tier_config() function';
     RETURN FALSE;
   END IF;
 
@@ -383,7 +381,7 @@ $function$ LANGUAGE plpgsql VOLATILE COST 100;
 -- doesn't have any pk, fk, uniq constraints defined.
 -- Alternative case, it will only detach the existing partition.
 CREATE OR REPLACE
-  FUNCTION @extschema@.execute(ptgt_table_oid regclass, trunc_old_tbl boolean DEFAULT TRUE, with_force boolean DEFAULT FALSE)
+  FUNCTION @extschema@.execute_s3_tiering(ptgt_table_oid regclass, trunc_old_tbl boolean DEFAULT TRUE, with_force boolean DEFAULT FALSE)
   RETURNS boolean
   LANGUAGE plpgsql
 AS $BODY$
@@ -485,10 +483,10 @@ DECLARE
   tgt_tab_oid oid;
   ret boolean;
 BEGIN
-  SELECT @extschema@.enable(relation) INTO ret;
+  SELECT @extschema@.enable_tiering(relation) INTO ret;
   IF ret = TRUE THEN
     SELECT tgt_oid INTO tgt_tab_oid from @extschema@.target WHERE tgt_src_oid = relation;
-    SELECT @extschema@.execute(tgt_tab_oid) INTO ret;
+    SELECT @extschema@.execute_s3_tiering(tgt_tab_oid) INTO ret;
   ELSE
     ROLLBACK;
     RETURN FALSE;
