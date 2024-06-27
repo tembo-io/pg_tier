@@ -12,7 +12,7 @@
 
 The features, functionality, and behavior of `pg_tier` are subject to change without notice. Updates and revisions may be released periodically as we work towards a stable version.
 
-`pg_tier` may contain bugs, errors or other concurrency releated issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them.
+`pg_tier` may contain bugs, errors or other concurrency related issues. It's not advised to use in production use-cases. We encourage you to test your use cases in the non-production environment. If you encounter any bugs, errors, or other issues, please report them.
 
 Your reports will help us improve the extension for the final release.
 
@@ -20,9 +20,9 @@ By proceeding with installation and use, you acknowledge that you have read, und
 
 ## Overview
 
-In today's data-driven landscape, managing vast amounts of information efficiently is paramount. Data has a lifecycle, right from the creation to deletion it goes through many stages e.g. when data is new it has high accessibility therefore it will be cached in-memory, we can consider this as hot data stage. Once the data gets older it will move to cold data stage then to archival stage or purge stage. Data access pattern, cost and resource constraints are some major factors that govern lifecyle of data.
+In today's data-driven landscape, managing vast amounts of information efficiently is paramount. Data has a lifecycle, right from the creation to deletion it goes through many stages e.g. when data is new it has high accessibility therefore it will be cached in-memory, we can consider this as hot data stage. Once the data gets older it will move to cold data stage then to archival stage or purge stage. Data access pattern, cost and resource constraints are some major factors that govern lifecycle of data.
 
-This extension provides strategic solution to manage data that has lower access frequency, lower performance requirement and lower storage cost. It aligns with the concept of data lifecycle management, ensuring that data is stored cost-effectively while remaining accessible when needed.
+This extension provides a strategic solution to manage data that has lower access frequency, lower performance requirement and lower storage cost. It aligns with the concept of data lifecycle management, ensuring that data is stored cost-effectively while remaining accessible when needed.
 
 ## Installation
 
