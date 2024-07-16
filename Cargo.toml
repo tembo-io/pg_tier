@@ -14,15 +14,15 @@ pg16 = ["pgrx/pg16", "pgrx-tests/pg16" ]
 pg_test = []
 
 [dependencies]
-pgrx = "=0.11.3"
-aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
+pgrx = "=0.11.4"
+aws-config = { version = "1.5.0" }
 aws-sdk-s3 = "1.17.0"
 tokio = { version = "1", features = ["full"] }
 aws-smithy-runtime-api = "1.1.7"
 
 
 [dev-dependencies]
-pgrx-tests = "=0.11.3"
+pgrx-tests = "=0.11.4"
 
 [profile.dev]
 panic = "unwind"

@@ -83,6 +83,7 @@ DECLARE
   aws_region text;
   aws_bucket_name text;
   server_name text;
+  has_data boolean;
 BEGIN
 
 -- Check if source is a parent
@@ -118,6 +119,14 @@ BEGIN
 -- RAISE NOTICE 'tab_name: %, tab_spacename = %', tab_name, tab_spacename;
   IF NOT FOUND THEN
     RAISE no_data_found USING MESSAGE = 'Table doesnot exists or not a regular or partition table';
+    RETURN FALSE;
+  END IF;
+
+  EXECUTE 'SELECT EXISTS(SELECT * FROM ' || qualified_tab_name || '  LIMIT 1 ) '
+    INTO has_data;
+
+  IF has_data = 'f' THEN
+    RAISE NOTICE 'Table = % is empty', qualified_tab_name;
     RETURN FALSE;
   END IF;
 
@@ -488,7 +497,6 @@ BEGIN
     SELECT tgt_oid INTO tgt_tab_oid from @extschema@.target WHERE tgt_src_oid = relation;
     SELECT @extschema@.execute_s3_tiering(tgt_tab_oid) INTO ret;
   ELSE
-    ROLLBACK;
     RETURN FALSE;
   END IF;
 RETURN ret;
