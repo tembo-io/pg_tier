@@ -1,5 +1,67 @@
 -- This function must be the first call right after the CREATE EXTENSION.
+CREATE OR REPLACE
+FUNCTION @extschema@.set_tier_cloud_config()
+  RETURNS boolean
+  LANGUAGE plpgsql
+AS $function$
+DECLARE
+  current_user text;
+  server_name text := 'pg_tier_s3_srv';
+  s3_path text;
+  region text;
+  ret boolean;
+BEGIN
+-- Fetch current user
+  SELECT
+    CURRENT_USER INTO current_user;
 
+  BEGIN
+    SELECT current_setting('tembo.storage_bucket_and_path') INTO s3_path;
+      EXCEPTION
+        WHEN no_data_found THEN
+          RETURN FALSE;
+        WHEN OTHERS THEN
+          RETURN FALSE;
+  END;
+
+  -- Create s3_fdw_server
+  EXECUTE 'CREATE SERVER ' || server_name || ' FOREIGN DATA WRAPPER parquet_s3_fdw OPTIONS (use_credential_providers ' || chr(39) || 'true' || chr(39) ||')';
+
+--Create mapping user
+  EXECUTE 'CREATE USER MAPPING FOR public SERVER ' || server_name ||
+    ' OPTIONS (user '|| chr(39) || '_' || chr(39) ||
+    ', password ' || chr(39) || '_' || chr(39) || ')';
+
+--Populate server_credential tier catalog table
+  INSERT INTO
+    @extschema@.server_credential(
+        created_on,
+        user_name,
+        bucket,
+        access_key,
+        secret_key,
+        region,
+        fdw_server_name,
+        fdw_server_user_created
+    )
+  VALUES
+    (
+        now(),
+        current_user,
+        s3_path,
+        '_',
+        '_',
+        'Default',
+        server_name,
+        TRUE
+    );
+
+  RETURN TRUE;
+END;
+$function$;
+
+
+-- This function must be the first call right after the CREATE EXTENSION.
 CREATE OR REPLACE
 FUNCTION @extschema@.set_tier_config(bucket_name TEXT, access_key TEXT, secret_key TEXT, region TEXT)
   RETURNS boolean
