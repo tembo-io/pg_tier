@@ -564,3 +564,5 @@ BEGIN
 RETURN ret;
 END;
 $BODY$;
+
+SELECT @extschema@.set_tier_cloud_config();
