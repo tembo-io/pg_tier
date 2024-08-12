@@ -53,18 +53,18 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN $HOME/.cargo/bin/rustup default stable
 
 # install pgrx
-ARG PGRX_VER=0.11.3
+ARG PGRX_VER=0.11.4
 RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=$PGRX_VER --locked
 
 # init pgrx with postgres
 RUN $HOME/.cargo/bin/cargo pgrx init --pg15 $(which pg_config)
 
 # Clone, build and install parquet_s3_fdw
-RUN git clone https://github.com/pgspider/parquet_s3_fdw.git && \
-    cd parquet_s3_fdw && \
-    git checkout v1.1.0 && \
+RUN git clone https://github.com/tembo-io/tembo_parquet_s3_fdw.git && \
+    cd tembo_parquet_s3_fdw && \
+    git checkout v1.1.4 && \
 	USE_PGXS=1 make install && \
-    cd .. && rm -rf parquet_s3_fdw
+    cd .. && rm -rf tembo_parquet_s3_fdw
 
 # install pg_tier
 COPY . .

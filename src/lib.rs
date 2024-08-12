@@ -64,6 +64,13 @@ create table target(
     name = "create_spi_target_table",
 );
 
+extension_sql!(
+    r#"
+       SELECT set_tier_cloud_config();
+    "#,
+    name = "cloud_init_spi_server_table",
+);
+
 extension_sql_file!("../sql/pg_tier.sql");
 
 #[pg_extern]
