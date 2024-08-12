@@ -53,7 +53,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN $HOME/.cargo/bin/rustup default stable
 
 # install pgrx
-ARG PGRX_VER=0.11.3
+ARG PGRX_VER=0.11.4
 RUN $HOME/.cargo/bin/cargo install cargo-pgrx --version=$PGRX_VER --locked
 
 # init pgrx with postgres
