@@ -11,59 +11,6 @@ use pgrx::prelude::*;
 
 pgrx::pg_module_magic!();
 
-extension_sql!(
-    r#"
-create table server_credential(
-    cred_id integer not null UNIQUE default(1),
-    created_on timestamptz not null,
-    updated_on timestamptz,
-    user_name text not null,
-    bucket text not null,
-    access_key text not null,
-    secret_key text not null,
-    region text not null,
-    fdw_server_name text not null,
-    fdw_server_user_created bool not null,
-    CONSTRAINT only_one_row_check CHECK(cred_id = 1)
-    );
-"#,
-    name = "create_spi_server_credential_table",
-);
-
-extension_sql!(
-    r#"
-create table source(
-    src_oid oid not null UNIQUE,
-    src_relnamespace oid not null,
-    src_inhparent oid,
-    src_orig_relname name not null,
-    src_new_relname name not null,
-    src_state text not null,
-    src_enabled boolean not null,
-    src_dropped boolean not null,
-    src_created_on timestamptz not null
-    );
-"#,
-    name = "create_spi_source_table",
-);
-
-extension_sql!(
-    r#"
-create table target(
-    tgt_oid oid not null UNIQUE,
-    tgt_relname name not null,
-    tgt_relnamespace oid not null,
-    tgt_src_oid oid not null,
-    tgt_tier_state text not null,
-    tgt_ddl text not null,
-    tgt_tier_dir text not null,
-    tgt_src_partition_bound text,
-    tgt_created_on timestamptz not null
-    );
-"#,
-    name = "create_spi_target_table",
-);
-
 extension_sql_file!("../sql/pg_tier.sql");
 
 #[pg_extern]
