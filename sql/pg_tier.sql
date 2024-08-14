@@ -64,7 +64,7 @@ BEGIN
   END;
 
   -- Create s3_fdw_server
-  EXECUTE 'CREATE SERVER ' || server_name || ' FOREIGN DATA WRAPPER parquet_s3_fdw OPTIONS (use_credential_providers ' || chr(39) || 'true' || chr(39) ||')';
+  EXECUTE 'CREATE SERVER ' || server_name || ' FOREIGN DATA WRAPPER parquet_s3_fdw OPTIONS (use_credential_provider ' || chr(39) || true || chr(39) ||')';
 
 --Create mapping user
   EXECUTE 'CREATE USER MAPPING FOR public SERVER ' || server_name ||
